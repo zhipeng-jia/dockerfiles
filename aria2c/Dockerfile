@@ -1,4 +1,4 @@
-FROM debian:buster as build
+FROM debian:buster-slim as build
 RUN apt update && apt upgrade -y && apt install -y build-essential wget
 
 ARG VERSION=1.35.0
@@ -27,7 +27,7 @@ RUN ./configure \
     --without-libnettle
 RUN make -j $(nproc) install
 
-FROM debian:buster as release
+FROM debian:buster-slim as release
 RUN apt update && apt upgrade -y
 RUN apt install -y libssl1.1 libxml2 libssh2-1 libc-ares2
 COPY --from=build /usr/local/bin/aria2c /usr/local/bin/
