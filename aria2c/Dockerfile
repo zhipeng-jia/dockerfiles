@@ -1,34 +1,73 @@
-FROM debian:buster-slim as build
-RUN apt update && apt upgrade -y && apt install -y build-essential wget
+FROM debian:buster-slim
 
-ARG VERSION=1.35.0
+# install runtime dependencies
+RUN set -eux; \
+	apt-get update; \
+	apt-get install -y --no-install-recommends \
+		ca-certificates \
+		libssl1.1 \
+		libxml2 \
+		libc-ares2 \
+	; \
+	rm -rf /var/lib/apt/lists/*
 
-WORKDIR /tmp
-RUN wget https://github.com/aria2/aria2/releases/download/release-$VERSION/aria2-$VERSION.tar.xz && \
-    tar -xJf aria2-$VERSION.tar.xz && rm aria2-$VERSION.tar.xz
+ARG ARIA2_VERSION=1.35.0
 
-RUN apt install -y libssl-dev libxml2-dev libssh2-1-dev libc-ares-dev zlib1g-dev pkg-config
+RUN set -eux; \
+	\
+	savedAptMark="$(apt-mark showmanual)"; \
+	apt-get update; \
+	apt-get install -y --no-install-recommends \
+		build-essential \
+		wget \
+		libssl-dev \
+		libxml2-dev \
+		libc-ares-dev \
+		zlib1g-dev \
+		pkg-config \
+	; \
+	rm -r /var/lib/apt/lists/*; \
+	\
+	cd /tmp; \
+	wget https://github.com/aria2/aria2/releases/download/release-$ARIA2_VERSION/aria2-$ARIA2_VERSION.tar.xz; \
+	tar -xJf aria2-$ARIA2_VERSION.tar.xz; \
+	rm aria2-$ARIA2_VERSION.tar.xz; \
+	\
+	cd aria2-$ARIA2_VERSION; \
+	./configure \
+		--prefix=/usr/local \
+		--with-libcares \
+		--without-gnutls \
+		--with-openssl \
+		--without-sqlite3 \
+		--with-libxml2 \
+		--without-libexpat \
+		--with-libz \
+		--without-libgmp \
+		--without-libssh2 \
+		--without-libgcrypt \
+		--without-libnettle \
+		CFLAGS="-O3 -flto" \
+		CXXFLAGS="-O3 -flto" \
+	; \
+	make -j "$(nproc)"; \
+	make install; \
+	\
+	cd ..; \
+	rm -r aria2-$ARIA2_VERSION; \
+	\
+# reset apt-mark's "manual" list so that "purge --auto-remove" will remove all build dependencies
+	apt-mark auto '.*' > /dev/null; \
+	[ -z "$savedAptMark" ] || apt-mark manual $savedAptMark; \
+	find /usr/local -type f -executable -exec ldd '{}' ';' \
+		| awk '/=>/ { print $(NF-1) }' \
+		| sort -u \
+		| xargs -r dpkg-query --search \
+		| cut -d: -f1 \
+		| sort -u \
+		| xargs -r apt-mark manual \
+	; \
+	apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false;
 
-WORKDIR /tmp/aria2-$VERSION
-ENV CFLAGS="-O3 -flto"
-ENV CXXFLAGS="-O3 -flto"
-RUN ./configure \
-    --prefix=/usr/local \
-    --with-libcares \
-    --without-gnutls \
-    --with-openssl \
-    --without-sqlite3 \
-    --with-libxml2 \
-    --without-libexpat \
-    --with-libz \
-    --without-libgmp \
-    --with-libssh2 \
-    --without-libgcrypt \
-    --without-libnettle
-RUN make -j $(nproc) install
-
-FROM debian:buster-slim as release
-RUN apt update && apt upgrade -y
-RUN apt install -y libssl1.1 libxml2 libssh2-1 libc-ares2
-COPY --from=build /usr/local/bin/aria2c /usr/local/bin/
 ENTRYPOINT ["/usr/local/bin/aria2c"]
+CMD ["--conf-path", "/etc/aria2/aria2.conf"]
