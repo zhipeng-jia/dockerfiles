@@ -1,0 +1,42 @@
+FROM ubuntu:bionic
+
+RUN set -eux; \
+	apt-get update; \
+	apt-get upgrade -y; \
+	apt-get install -y --no-install-recommends \
+		make \
+		gcc \
+		wget \
+		ca-certificates \
+		unzip \
+		libncurses-dev \
+		flex \
+		bison \
+		openssl \
+		libssl-dev \
+		libc6-dev \
+		autoconf \
+		bc \
+		liblz4-tool \
+		rsync \
+		cpio \
+		kmod \
+	; \
+	rm -rf /var/lib/apt/lists/*; \
+	apt clean
+
+RUN set -eux; \
+	wget https://github.com/raspberrypi/tools/archive/master.zip -O /tmp/rpi-tools.zip; \
+	mkdir /rpi; \
+	unzip /tmp/rpi-tools.zip -d /rpi; \
+	rm /tmp/rpi-tools.zip
+
+ENV PATH="/rpi/tools-master/arm-bcm2708/arm-linux-gnueabihf/bin:${PATH}"
+
+RUN adduser --disabled-password --gecos "" bot
+
+ENV KERNEL=kernel7
+ENV ARCH=arm
+ENV CROSS_COMPILE=arm-linux-gnueabihf-
+
+ENTRYPOINT ["/bin/bash"]

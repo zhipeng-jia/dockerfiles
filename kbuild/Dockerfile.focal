@@ -2,27 +2,27 @@ FROM ubuntu:focal
 
 RUN set -eux; \
 	apt-get update; \
-    apt-get upgrade -y; \
+	apt-get upgrade -y; \
 	apt-get install -y --no-install-recommends \
 		build-essential \
-        libncurses-dev \
-        flex \
-        bison \
-        openssl \
-        libssl-dev \
-        dkms \
-        libelf-dev \
-        libudev-dev \
-        libpci-dev \
-        libiberty-dev \
-        autoconf \
-        bc \
-        liblz4-tool \
-        rsync \
-        cpio \
+		libncurses-dev \
+		flex \
+		bison \
+		openssl \
+		libssl-dev \
+		dkms \
+		libelf-dev \
+		libudev-dev \
+		libpci-dev \
+		libiberty-dev \
+		autoconf \
+		bc \
+		liblz4-tool \
+		rsync \
+		cpio \
 	; \
 	rm -rf /var/lib/apt/lists/*; \
-    apt clean
+	apt clean
 
 RUN adduser --disabled-password --gecos "" bot
 
