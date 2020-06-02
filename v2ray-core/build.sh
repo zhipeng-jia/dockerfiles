@@ -2,7 +2,7 @@
 
 SCRIPT_PATH=$(readlink -f $0)
 BASE_DIR=$(dirname $SCRIPT_PATH)
-TAG=4.23.1
+TAG=4.23.3
 
 ( cd $BASE_DIR && 
   docker build -t zjia/v2ray-core:$TAG . )
