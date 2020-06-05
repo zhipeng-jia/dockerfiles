@@ -2,8 +2,8 @@ FROM alpine:3.11 as build
 
 RUN apk --no-cache add ca-certificates wget
 
-ARG VERSION=4.23.3
-ARG SHA256=ad3c272b03cd682a427c70c4ea6079bfbf614bf5978f69a0d1b77d673aa913ae
+ARG VERSION=4.23.4
+ARG SHA256=38f02c2d3f054ec228f0f29a4185431b89f06f7b6a7a8f795e12ae48eaa591ba
 
 WORKDIR /tmp
 RUN echo "$SHA256 *v2ray-linux-64.zip" > checksum && \
