@@ -2,11 +2,13 @@
 
 SCRIPT_PATH=$(readlink -f $0)
 BASE_DIR=$(dirname $SCRIPT_PATH)
-TAG=4.26.0
+TAG=4.28.2
 
 ( cd $BASE_DIR && 
-  docker build -t zjia/v2ray-core:$TAG . )
+  docker build -t zjia/v2ray-core:$TAG . &&
+  docker build -t zjia/v2ray-core:$TAG-arm64 -f Dockerfile.arm64 . )
 
 docker tag zjia/v2ray-core:$TAG zjia/v2ray-core:latest
 docker push zjia/v2ray-core:$TAG
+docker push zjia/v2ray-core:$TAG-arm64
 docker push zjia/v2ray-core:latest

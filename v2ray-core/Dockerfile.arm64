@@ -1,17 +1,17 @@
-FROM alpine:3.11 as build
+FROM arm64v8/alpine:3.11 as build
 
 RUN apk --no-cache add ca-certificates wget
 
 ARG VERSION=4.28.2
-ARG SHA256=e50e6818a743f842e1bd464f81ed3e42896f68f461718d9ba0f8d75107355c11
+ARG SHA256=7b0aa7a02086e12e2ff32483874d2e32e2e808a349c2f72733c8190683e0c032
 
 WORKDIR /tmp
-RUN echo "$SHA256 *v2ray-linux-64.zip" > checksum && \
-    wget https://github.com/v2ray/v2ray-core/releases/download/v$VERSION/v2ray-linux-64.zip && \
+RUN echo "$SHA256 *v2ray-linux-arm64-v8a.zip" > checksum && \
+    wget https://github.com/v2ray/v2ray-core/releases/download/v$VERSION/v2ray-linux-arm64-v8a.zip && \
     sha256sum -cs checksum && \
-    mkdir v2ray && unzip v2ray-linux-64.zip -d v2ray
+    mkdir v2ray && unzip v2ray-linux-arm64-v8a.zip -d v2ray
 
-FROM alpine:3.11 as release
+FROM arm64v8/alpine:3.11 as release
 RUN mkdir -p /usr/local/v2ray /etc/v2ray
 COPY --from=build /tmp/v2ray/v2ray /usr/local/v2ray/
 COPY --from=build /tmp/v2ray/v2ctl /usr/local/v2ray/
