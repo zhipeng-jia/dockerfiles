@@ -1,0 +1,13 @@
+FROM arm64v8/alpine:3.11 as build
+
+RUN apk --no-cache add ca-certificates wget
+
+ARG VERSION=0.34.1
+
+WORKDIR /tmp
+RUN wget https://github.com/AdguardTeam/dnsproxy/releases/download/v$VERSION/dnsproxy-linux-arm64-v$VERSION.tar.gz && \
+    mkdir dnsproxy && tar -xzf dnsproxy-linux-arm64-v$VERSION.tar.gz -C dnsproxy
+
+FROM arm64v8/alpine:3.11 as release
+COPY --from=build /tmp/dnsproxy/linux-arm64/dnsproxy /usr/local/bin
+ENTRYPOINT ["/usr/local/bin/dnsproxy"]
