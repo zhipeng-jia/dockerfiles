@@ -2,12 +2,12 @@ FROM alpine:3.11 as build
 
 RUN apk --no-cache add ca-certificates wget
 
-ARG VERSION=4.28.2
-ARG SHA256=e50e6818a743f842e1bd464f81ed3e42896f68f461718d9ba0f8d75107355c11
+ARG VERSION=4.35.1
+ARG SHA256=6bb16db10e362c1a14bdd1450d72d0eca51e6ff41eb366129dcefbbf789941c5
 
 WORKDIR /tmp
 RUN echo "$SHA256 *v2ray-linux-64.zip" > checksum && \
-    wget https://github.com/v2ray/v2ray-core/releases/download/v$VERSION/v2ray-linux-64.zip && \
+    wget https://github.com/v2fly/v2ray-core/releases/download/v$VERSION/v2ray-linux-64.zip && \
     sha256sum -cs checksum && \
     mkdir v2ray && unzip v2ray-linux-64.zip -d v2ray
 
