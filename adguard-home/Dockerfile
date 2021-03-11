@@ -2,7 +2,7 @@ FROM alpine:3.11 as build
 
 RUN apk --no-cache add ca-certificates wget
 
-ARG VERSION=0.105.1
+ARG VERSION=0.105.2
 
 WORKDIR /tmp
 RUN wget https://github.com/AdguardTeam/AdGuardHome/releases/download/v$VERSION/AdGuardHome_linux_amd64.tar.gz && \
