@@ -20,14 +20,14 @@ RUN /etc/my_init.d/00_regen_ssh_host_keys.sh
 EXPOSE 22
 
 COPY ./id_rsa.pub /tmp
-RUN mkdir -p /home/ubuntu/.ssh
-RUN cat /tmp/id_rsa.pub >> /home/ubuntu/.ssh/authorized_keys
-RUN chown ${USER_UID} /home/ubuntu/.ssh/authorized_keys
+RUN sudo -u ${USER_NAME} mkdir -p /home/${USER_NAME}/.ssh
+RUN sudo -u ${USER_NAME} touch /home/${USER_NAME}/.ssh/authorized_keys
+RUN cat /tmp/id_rsa.pub >> /home/${USER_NAME}/.ssh/authorized_keys
 
 COPY ./setup_ubuntu.sh /tmp
 RUN ORIGINAL_USER=ubuntu /tmp/setup_ubuntu.sh
 
-RUN apt -y install nano git gdb tmux
+RUN apt -y install htop nano git gdb tmux
 RUN apt -y clean
 
 RUN update-alternatives --verbose --install /usr/bin/clang-tidy clang-tidy /usr/bin/clang-tidy-10 90
