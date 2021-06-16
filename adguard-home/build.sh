@@ -5,7 +5,7 @@ BASE_DIR=$(dirname $SCRIPT_PATH)
 TAG=0.106.3
 
 ( cd $BASE_DIR &&
-  docker build -t zjia/adguard-home:$TAG . )
+  DOCKER_BUILDKIT=1 docker build -t zjia/adguard-home:$TAG . )
 
 docker tag zjia/adguard-home:$TAG zjia/adguard-home:latest
 docker push zjia/adguard-home:$TAG

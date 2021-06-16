@@ -12,6 +12,6 @@ FROM alpine:3.11 as release
 RUN apk --no-cache --update add ca-certificates
 RUN mkdir -p /opt/adguardhome/work
 COPY --from=build /tmp/AdGuardHome/AdGuardHome /usr/local/bin/
-VOLUME ["/opt/adguardhome/conf"]
+VOLUME ["/opt/adguardhome/conf", "/opt/adguardhome/work"]
 ENTRYPOINT ["/usr/local/bin/AdGuardHome"]
 CMD ["-c", "/opt/adguardhome/conf/AdGuardHome.yaml", "-w", "/opt/adguardhome/work"]
