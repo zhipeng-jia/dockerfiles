@@ -1,61 +1,62 @@
 FROM phusion/baseimage:focal-1.0.0
 CMD ["/sbin/my_init"]
 
-ENV DEBIAN_FRONTEND=noninteractive \
-    TZ=America/Chicago
-
-RUN apt update && \
-    apt -y upgrade && \
-    apt -y install bash-completion curl wget sudo openssh-server ca-certificates lsb-release
-
 ARG USER_NAME=ubuntu
 ARG USER_UID=1000
+ARG EXTRA_APT_PKGS=""
 
-RUN useradd -b /home -m -s /bin/bash -u ${USER_UID} ${USER_NAME} && \
-    usermod -p '*' ${USER_NAME} && \
-    echo "${USER_NAME} ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+ENV DEBIAN_FRONTEND=noninteractive
+ENV TZ=America/Chicago
+ENV BASIC_APT_PKGS="sudo man-db wget nano openssh-server apt-transport-https"
+
+RUN apt update && \
+    apt upgrade -y && \
+    apt install -y ${BASIC_APT_PKGS} && \
+    apt clean
+
+RUN echo "y" | unminimize
+
+ENV LC_ALL="en_US.UTF-8"
+
+RUN apt install -y ${EXTRA_APT_PKGS}
 
 RUN rm -f /etc/service/sshd/down
 RUN /etc/my_init.d/00_regen_ssh_host_keys.sh
 EXPOSE 22
 
-COPY ./id_rsa.pub /tmp
-RUN sudo -u ${USER_NAME} mkdir -p /home/${USER_NAME}/.ssh && \
-    sudo -u ${USER_NAME} touch /home/${USER_NAME}/.ssh/authorized_keys && \
-    cat /tmp/id_rsa.pub >> /home/${USER_NAME}/.ssh/authorized_keys && \
-    rm /tmp/id_rsa.pub
+RUN wget https://packages.microsoft.com/config/ubuntu/20.04/packages-microsoft-prod.deb \
+    -O /tmp/packages-microsoft-prod.deb && \
+    dpkg -i /tmp/packages-microsoft-prod.deb && \
+    rm /tmp/packages-microsoft-prod.deb
 
-ARG JDK_DEB_URL
-RUN apt-get install java-common && \
-    wget ${JDK_DEB_URL} -P /tmp/ && \
-    dpkg --install /tmp/*.deb && \
-    rm /tmp/*.deb
+RUN apt update && \
+    apt install -y msopenjdk-11 && \
+    apt clean
+
+ENV JAVA_HOME="/usr/lib/jvm/msopenjdk-11-amd64"
 
 ARG MAVEN_URL
+ARG MAVEN_VERSION
 RUN wget -qO- ${MAVEN_URL} | tar xzf - -C /opt
 
-ARG JAVA_HOME
-RUN echo "export JAVA_HOME=${JAVA_HOME}" >> /home/${USER_NAME}/.profile
-RUN echo "export PATH=\$PATH:/opt/apache-maven-3.8.1/bin" >> /home/${USER_NAME}/.profile
+RUN useradd -b /home -m -s /bin/bash -u ${USER_UID} ${USER_NAME} && \
+    usermod -p '*' ${USER_NAME} && \
+    echo "${USER_NAME} ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
-RUN apt -y install build-essential htop nano git gdb tmux python3-pip && \
-    apt -y install less libxext6 libxrender1 libxtst6 libfreetype6 libxi6 && \
-    apt -y clean
+COPY ./setup-user-home.sh /tmp
+RUN sudo -u ${USER_NAME} -H \
+    JAVA_HOME="${JAVA_HOME}" \
+    MAVEN_PATH="/opt/apache-maven-${MAVEN_VERSION}" \
+    /tmp/setup-user-home.sh && \
+    rm /tmp/setup-user-home.sh
 
-RUN sudo -u ${USER_NAME} python3 -m pip install -U pip && \
-    sudo -u ${USER_NAME} pip3 install projector-installer --user
+COPY ./setup-ssh-pubkey.sh /opt
+RUN echo "#!/bin/sh\nexec /sbin/setuser ${USER_NAME} /opt/setup-ssh-pubkey.sh" > /etc/my_init.d/01-setup-ssh-pubkey.sh && \
+    chmod +x /etc/my_init.d/01-setup-ssh-pubkey.sh
 
-ENV PROJECTOR_BIN="/home/${USER_NAME}/.local/bin/projector"
-RUN sudo -u ${USER_NAME} ${PROJECTOR_BIN} --accept-license \
-    ide autoinstall --config-name idea --port 8080 \
-    --ide-name "IntelliJ IDEA Community Edition 2020.3.4"
-EXPOSE 8080
-
-RUN mkdir /etc/service/projector && \
-    echo "#!/bin/sh\nexec /sbin/setuser ${USER_NAME} ${PROJECTOR_BIN} config run" > /etc/service/projector/run && \
-    chmod +x /etc/service/projector/run
-
-COPY ./setup-github-token.sh /opt
-RUN mkdir /etc/service/github-token && \
-    echo "#!/bin/sh\nexec /sbin/setuser ${USER_NAME} /opt/setup-github-token.sh" > /etc/service/github-token/run && \
-    chmod +x /etc/service/github-token/run
+VOLUME "/home/${USER_NAME}/workspace"
+VOLUME "/home/${USER_NAME}/.m2"
+VOLUME "/home/${USER_NAME}/.gradle"]
+VOLUME "/home/${USER_NAME}/.config/JetBrains"
+VOLUME "/home/${USER_NAME}/.cache/JetBrains"
+VOLUME "/home/${USER_NAME}/.local/share/JetBrains"]
