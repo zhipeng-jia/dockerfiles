@@ -56,7 +56,7 @@ RUN echo "#!/bin/sh\nexec /sbin/setuser ${USER_NAME} /opt/setup-ssh-pubkey.sh" >
 
 VOLUME "/home/${USER_NAME}/workspace"
 VOLUME "/home/${USER_NAME}/.m2"
-VOLUME "/home/${USER_NAME}/.gradle"]
+VOLUME "/home/${USER_NAME}/.gradle"
 VOLUME "/home/${USER_NAME}/.config/JetBrains"
 VOLUME "/home/${USER_NAME}/.cache/JetBrains"
-VOLUME "/home/${USER_NAME}/.local/share/JetBrains"]
+VOLUME "/home/${USER_NAME}/.local/share/JetBrains"
