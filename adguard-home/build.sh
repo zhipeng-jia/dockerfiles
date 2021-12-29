@@ -2,7 +2,7 @@
 
 SCRIPT_PATH=$(readlink -f $0)
 BASE_DIR=$(dirname $SCRIPT_PATH)
-TAG=0.106.3
+TAG=0.107.2
 
 ( cd $BASE_DIR &&
   DOCKER_BUILDKIT=1 docker build -t zjia/adguard-home:$TAG . )
