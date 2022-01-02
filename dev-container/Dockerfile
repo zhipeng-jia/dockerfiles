@@ -34,8 +34,8 @@ RUN sudo -u ${USER_NAME} -H \
     /tmp/setup-user-home.sh && \
     rm /tmp/setup-user-home.sh
 
-COPY ./setup-ssh-pubkey.sh /opt
-RUN echo "#!/bin/sh\nexec /sbin/setuser ${USER_NAME} /opt/setup-ssh-pubkey.sh" > /etc/my_init.d/01-setup-ssh-pubkey.sh && \
-    chmod +x /etc/my_init.d/01-setup-ssh-pubkey.sh
+RUN echo "${USER_NAME}" > /etc/container_environment/DEVUSER
+
+COPY ./setup-ssh-pubkey.sh /etc/my_init.d/01_setup_ssh_pubkey.sh
 
 VOLUME "/home/${USER_NAME}/workspace"
