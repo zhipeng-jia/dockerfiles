@@ -3,7 +3,7 @@
 SCRIPT_PATH=$(readlink -f $0)
 BASE_DIR=$(dirname $SCRIPT_PATH)
 
-GO_VERSION="1.17.5"
+GO_VERSION="1.17.6"
 GOSDK_URL="https://go.dev/dl/go${GO_VERSION}.linux-amd64.tar.gz"
 
 export DOCKER_BUILDKIT=1

@@ -5,6 +5,8 @@ BASE_DIR=$(dirname $SCRIPT_PATH)
 
 APT_PKGS="wget
 curl
+dialog
+bash-completion
 git
 build-essential
 g++
@@ -23,6 +25,8 @@ autoconf
 automake
 libtool
 "
+
+APT_PKGS=$(echo $APT_PKGS | tr "\n" " ")
 
 export DOCKER_BUILDKIT=1
 
