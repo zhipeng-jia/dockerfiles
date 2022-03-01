@@ -11,7 +11,7 @@ RUN set -eux; \
 	; \
 	rm -rf /var/lib/apt/lists/*
 
-ARG ARIA2_VERSION=1.35.0
+ARG ARIA2_VERSION=1.36.0
 
 RUN set -eux; \
 	\
