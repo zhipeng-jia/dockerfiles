@@ -8,6 +8,8 @@ RUN set -eux; \
 		libssl1.1 \
 		libxml2 \
 		libc-ares2 \
+                libuv1 \
+                libjemalloc2 \
 	; \
 	rm -rf /var/lib/apt/lists/*
 
@@ -23,6 +25,8 @@ RUN set -eux; \
 		libssl-dev \
 		libxml2-dev \
 		libc-ares-dev \
+                libuv1-dev \
+                libjemalloc-dev \
 		zlib1g-dev \
 		pkg-config \
 	; \
@@ -47,6 +51,8 @@ RUN set -eux; \
 		--without-libssh2 \
 		--without-libgcrypt \
 		--without-libnettle \
+                --with-libuv \
+                --with-jemalloc \
 		CFLAGS="-O3 -flto" \
 		CXXFLAGS="-O3 -flto" \
 	; \
